@@ -1,35 +1,33 @@
 import React, { useContext, useState } from 'react';
 import useWebsocket, { ReadyState } from 'react-use-websocket';
 import { AuthContext } from '../contexts/AuthContext';
+import { useParams } from "react-router-dom";
+import { MessageModel } from '../models/Message';
+import { Message } from './Message';
 
 export function Chat() {
+  const { conversationName } = useParams();
   const { user } = useContext(AuthContext);
-    const [welcomeMessage, setWelcomeMessage] = useState("");
-  const { sendJsonMessage } = useWebsocket(user ? "ws://127.0.0.1:8000/": null, {queryParams: {token: user? user.token: ""}});
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const { sendJsonMessage } = useWebsocket(user ? `ws://127.0.0.1:8000/${conversationName}`: null, {queryParams: {token: user? user.token: ""}});
 
   const [message, setMessage] = useState("");
-  const [name, setName] = useState("");
   const [messageHistory, setMessageHistory] = useState<any>([]);
 
   function handleChangeMessage(e: any) {
     setMessage(e.target.value);
   }
 
-  function handleChangeName(e: any) {
-    setName(e.target.value);
-  }
 
   function handleSubmit() {
     sendJsonMessage({
       type: "chat_message",
       message,
-      name
     });
-    setName("");
     setMessage("");
   }
 
-  const { readyState } = useWebsocket(user ? "ws://127.0.0.1:8000/" : null, {
+  const { readyState } = useWebsocket(user ? `ws://127.0.0.1:8000/${conversationName}` : null, {
     queryParams: {
       token: user ? user.token : "",
     },
@@ -52,7 +50,10 @@ export function Chat() {
           setWelcomeMessage(data.message)
           break;
         case "chat_message_echo":
-          setMessageHistory((prev:any) => prev.concat(data));
+          setMessageHistory((prev:any) => prev.concat(data.message));
+          break;
+        case "last_50_messages":
+          setMessageHistory(data.messages);
           break;
         default:
           console.error("Unkown message type!");
@@ -74,23 +75,7 @@ export function Chat() {
     <div>
       <span>The WebSocket is currently {connectionStatus}</span>
       <p>{welcomeMessage}</p>
-      <button
-        className='bg-gray-300 px-3 py-1'
-        onClick={() => {
-          sendJsonMessage({
-            type: "greeting",
-            message: "Hi!"
-          });
-        }}
-      >
-        Say Hi
-      </button>
-      <input
-        name="name"
-        placeholder='Name'
-        onChange={handleChangeName}
-        value={name}
-        className="shadow-sm sm:text-sm border-gray-300 bg-gray-100 rounded-md"/>
+      
       <input
         name="message"
         placeholder='Message'
@@ -102,12 +87,14 @@ export function Chat() {
       </button>
 
     <hr />
-    <ul>
-      {messageHistory.map((message: any, idx: number) => (
-        <div className='border border-gray-200 py-3 px-3' key={idx}>
-          {message.name}: {message.message}
-        </div>
-      ))}
+    <ul
+      className='mt3 flex flex-col-reverse relative w-full border border-gray-200 overflow-y-auto p-6'
+    >
+      {
+        messageHistory.map((message: MessageModel) => (
+          <Message key={message.id} message={message}/>
+        ))
+      }
     </ul>
     
     </div>

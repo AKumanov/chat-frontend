@@ -51,7 +51,7 @@ export function Navbar() {
             <ul className="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium">
               <li>
                 <Link
-                  to="/chats"
+                  to="/"
                   className="block py-2 pr-4 pl-3 text-black md:p-0 dark:text-black"
                   aria-current="page"
                 >

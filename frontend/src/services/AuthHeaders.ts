@@ -9,7 +9,7 @@ export default function authHeader(): AxiosRequestHeaders | any {
     }
     const user = JSON.parse(localstorageUser);
     if (user && user.access) {
-        return { Authorization: `Token ${user.access}`};
+        return { Authorization: `Token ${user.token}`};
 
     }
     return {};
