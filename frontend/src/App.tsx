@@ -1,37 +1,33 @@
-import React from 'react';
-import useWebsocket, { ReadyState } from "react-use-websocket";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Chat } from "./components/Chat";
+import { Login } from "./components/Login";
+import { Navbar } from "./components/Navbar";
+import { AuthContextProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export default function App() {
-  const { readyState } = useWebsocket("ws://localhost:8000", {
-    onOpen: () => {
-      console.log("Connected!");
-    },
-    onClose: (event) => {
-      console.log("Disconnected!");
-      console.log(event.code)
-    },
-    onError: (e: Event) => {
-      // e.preventDefault()
-    },
-    onMessage: (e: Event) => {
-      console.log(e);
-    }
-  
-  });
-
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: "Connecting",
-    [ReadyState.OPEN]: "Open",
-    [ReadyState.CLOSING]: "Closing",
-    [ReadyState.CLOSED]: "Closed",
-    [ReadyState.UNINSTANTIATED]: "Uninstantiated"
-  }[readyState];
-  
   return (
-    <div>
-      <span>The WebSocket is currently {connectionStatus}</span>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <AuthContextProvider>
+                <Navbar />
+            </AuthContextProvider>
+          }
+        >
+          <Route
+            path="chats/"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="login" element={<Login />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
-
 }
-
