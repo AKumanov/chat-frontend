@@ -7,6 +7,7 @@ import { Login } from "./components/Login";
 import { Navbar } from "./components/Navbar";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthContextProvider } from "./contexts/AuthContext";
+import { ActiveConversations } from "./components/ActiveConversations";
 
 
 export default function App() {
@@ -27,6 +28,14 @@ export default function App() {
           
           <Route path="login/" element={<Login />} />
         </Route>
+        <Route 
+          path="conversations/"
+          element={
+            <ProtectedRoute>
+              <ActiveConversations />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
